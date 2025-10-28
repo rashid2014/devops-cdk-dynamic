@@ -35,6 +35,9 @@ jobs:
     defaults:
       run:      
         working-directory: genai
+    env:
+      ACTION: ${{ github.event.inputs.action || 'deploy' }}
+      DEPLOY_ENV: ${{ github.event.inputs.deploy_env || 'dev' }}
 
     steps:
       - name: Checkout repo
@@ -61,15 +64,15 @@ jobs:
 
       - name: CDK Synth
         run: |
-          DEPLOY_ENV=${{ github.event.inputs.deploy_env }} npx cdk synth
+          DEPLOY_ENV=$DEPLOY_ENV npx cdk synth
 
       - name: CDK Deploy or Destroy
         run: |
-          if [ "${{ github.event.inputs.action }}" == "deploy" ]; then
-            DEPLOY_ENV=${{ github.event.inputs.deploy_env }} npx cdk deploy --require-approval never
-          elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
-            DEPLOY_ENV=${{ github.event.inputs.deploy_env }} npx cdk destroy --require-approval never
+          if [ "$ACTION" == "deploy" ]; then
+            DEPLOY_ENV=$DEPLOY_ENV npx cdk deploy --require-approval never
+          elif [ "$ACTION" == "destroy" ]; then
+            DEPLOY_ENV=$DEPLOY_ENV npx cdk destroy --require-approval never
           else
-            echo "Invalid action: ${{ github.event.inputs.action }}"
+            echo "Invalid action: $ACTION"
             exit 1
           fi

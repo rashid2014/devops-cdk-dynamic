@@ -1,1 +1,0 @@
-# devops-cdk-dynamic
